@@ -173,7 +173,7 @@ fun LoginBody(){
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Sign in to continue to Goalpost",
+                    text = "Sign in to continue to Academia",
                     color = Color.White,
                     fontSize = 16.sp
                 )

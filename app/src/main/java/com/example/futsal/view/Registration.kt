@@ -152,7 +152,7 @@ fun RegistrationBody(){
             Spacer(modifier = Modifier.height(14.dp))
 
             Text(
-                text = "Welcome Back",
+                text = "Welcome",
                 color = Color.White,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
@@ -161,7 +161,7 @@ fun RegistrationBody(){
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Sign in to continue to Goalpost",
+                text = "Sign up to Academia",
                 color = Color.White,
                 fontSize = 16.sp
             )
