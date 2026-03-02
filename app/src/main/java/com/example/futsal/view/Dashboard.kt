@@ -8,7 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -21,9 +22,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import com.example.futsal.R
 import com.example.futsal.model.AssignmentModel
+import com.example.futsal.model.SubjectModel
 
 class Dashboard : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,15 +37,21 @@ class Dashboard : ComponentActivity() {
 
 @Composable
 fun DashboardBody() {
-    data class NavItem(val label: String, val icon: Int?, val vectorIcon: androidx.compose.ui.graphics.vector.ImageVector? = null)
+    data class NavItem(val label: String, val vectorIcon: androidx.compose.ui.graphics.vector.ImageVector)
 
     var selectedIndex by remember { mutableIntStateOf(0) }
-    var currentSubScreen by remember { mutableStateOf("list") }
+    
+    // Assignment navigation state
+    var currentAssignmentSubScreen by remember { mutableStateOf("list") }
     var selectedAssignment by remember { mutableStateOf<AssignmentModel?>(null) }
+    
+    // Subject navigation state (now on Home tab)
+    var currentSubjectSubScreen by remember { mutableStateOf("list") }
+    var selectedSubject by remember { mutableStateOf<SubjectModel?>(null) }
 
     val listNav = listOf(
-        NavItem(label = "Home", icon = R.drawable.baseline_home_24),
-        NavItem(label = "Assignments", icon = null, vectorIcon = Icons.Default.List)
+        NavItem(label = "Home", vectorIcon = Icons.Default.Home),
+        NavItem(label = "Assignments", vectorIcon = Icons.AutoMirrored.Filled.List)
     )
 
     Scaffold(
@@ -54,16 +60,14 @@ fun DashboardBody() {
                 listNav.forEachIndexed { index, item ->
                     NavigationBarItem(
                         icon = {
-                            if (item.vectorIcon != null) {
-                                Icon(item.vectorIcon, contentDescription = null)
-                            } else if (item.icon != null) {
-                                Icon(painter = painterResource(item.icon), contentDescription = null)
-                            }
+                            Icon(item.vectorIcon, contentDescription = null)
                         },
                         label = { Text(item.label) },
                         onClick = {
                             selectedIndex = index
-                            if (index == 1) currentSubScreen = "list"
+                            // Reset sub-screens when switching tabs
+                            if (index == 0) currentSubjectSubScreen = "list"
+                            if (index == 1) currentAssignmentSubScreen = "list"
                         },
                         selected = selectedIndex == index
                     )
@@ -77,18 +81,42 @@ fun DashboardBody() {
                 .padding(padding)
         ) {
             when (selectedIndex) {
-                0 -> HomeScreen()
+                0 -> {
+                    // Home tab now shows Subject Management via HomeScreen
+                    when (currentSubjectSubScreen) {
+                        "list" -> {
+                            HomeScreen(
+                                onAddClick = {
+                                    selectedSubject = null
+                                    currentSubjectSubScreen = "add_edit"
+                                },
+                                onEditClick = { subject ->
+                                    selectedSubject = subject
+                                    currentSubjectSubScreen = "add_edit"
+                                }
+                            )
+                        }
+                        "add_edit" -> {
+                            AddEditSubjectScreen(
+                                subject = selectedSubject,
+                                onBack = {
+                                    currentSubjectSubScreen = "list"
+                                }
+                            )
+                        }
+                    }
+                }
                 1 -> {
-                    when (currentSubScreen) {
+                    when (currentAssignmentSubScreen) {
                         "list" -> {
                             AssignmentListScreen(
                                 onAddClick = {
                                     selectedAssignment = null
-                                    currentSubScreen = "add_edit"
+                                    currentAssignmentSubScreen = "add_edit"
                                 },
                                 onEditClick = { assignment ->
                                     selectedAssignment = assignment
-                                    currentSubScreen = "add_edit"
+                                    currentAssignmentSubScreen = "add_edit"
                                 }
                             )
                         }
@@ -96,13 +124,16 @@ fun DashboardBody() {
                             AddEditAssignmentScreen(
                                 assignment = selectedAssignment,
                                 onBack = {
-                                    currentSubScreen = "list"
+                                    currentAssignmentSubScreen = "list"
                                 }
                             )
                         }
                     }
                 }
-                else -> HomeScreen()
+                else -> {
+                    // Fallback
+                    Text("Select a tab")
+                }
             }
         }
     }
