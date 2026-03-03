@@ -1,5 +1,6 @@
 package com.example.futsal.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.example.futsal.model.SubjectModel
 import com.example.futsal.repository.SubjectRepo
@@ -7,7 +8,7 @@ import com.example.futsal.repository.SubjectRepoImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class SubjectViewModel(private val repo: SubjectRepo = SubjectRepoImpl()) : ViewModel() {
+class SubjectViewModel(private val repo: SubjectRepo) : ViewModel() {
 
     private val _subjects = MutableStateFlow<List<SubjectModel>>(emptyList())
     val subjects: StateFlow<List<SubjectModel>> = _subjects
@@ -62,6 +63,10 @@ class SubjectViewModel(private val repo: SubjectRepo = SubjectRepoImpl()) : View
                 _message.value = msg
             }
         }
+    }
+
+    fun uploadImage(uri: Uri, callback: (String?) -> Unit) {
+        (repo as? SubjectRepoImpl)?.uploadImage(uri, callback)
     }
 
     fun clearMessage() {
