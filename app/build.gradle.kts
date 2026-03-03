@@ -53,6 +53,8 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.database)
+    implementation(libs.cloudinary.android)
+    implementation(libs.coil.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
