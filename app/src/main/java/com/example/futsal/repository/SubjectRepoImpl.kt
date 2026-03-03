@@ -1,13 +1,31 @@
 package com.example.futsal.repository
 
+import android.content.Context
+import android.net.Uri
+import com.cloudinary.android.MediaManager
+import com.cloudinary.android.callback.ErrorInfo
+import com.cloudinary.android.callback.UploadCallback
 import com.example.futsal.model.SubjectModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class SubjectRepoImpl : SubjectRepo {
+class SubjectRepoImpl(private val context: Context) : SubjectRepo {
     private val database = FirebaseDatabase.getInstance().getReference("subjects")
+
+    init {
+        try {
+            val config = mapOf(
+                "cloud_name" to "dusnktkk7",
+                "api_key" to "597162626537592",
+                "api_secret" to "QCNxWNXYobaiZ9aO9Nm6AoPG-ME"
+            )
+            MediaManager.init(context, config)
+        } catch (e: Exception) {
+            // MediaManager already initialized
+        }
+    }
 
     override fun addSubject(subject: SubjectModel, callback: (Boolean, String?) -> Unit) {
         val id = database.push().key ?: return callback(false, "Failed to generate ID")
@@ -58,5 +76,21 @@ class SubjectRepoImpl : SubjectRepo {
                 callback(null, error.message)
             }
         })
+    }
+
+    fun uploadImage(uri: Uri, callback: (String?) -> Unit) {
+        MediaManager.get().upload(uri)
+            .callback(object : UploadCallback {
+                override fun onStart(requestId: String?) {}
+                override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
+                override fun onSuccess(requestId: String?, resultData: Map<*, *>?) {
+                    val url = resultData?.get("secure_url") as? String
+                    callback(url)
+                }
+                override fun onError(requestId: String?, error: ErrorInfo?) {
+                    callback(null)
+                }
+                override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
+            }).dispatch()
     }
 }
